@@ -50,13 +50,20 @@ switch (@$_REQUEST['action'])
     
         $_SESSION['ACCESS_TOKEN'] = serialize($consumer->fetchAccessTokenFromOpenId($_SESSION['REQUEST_TOKEN']));
         $dbFuncsObj->setAccessToken($_SESSION['OPENID_EMAIL'], $_SESSION['ACCESS_TOKEN'], true);
+        if ($dbFuncsObj->validateAccessToken($_SESSION['OPENID_EMAIL'], $_SESSION['ACCESS_TOKEN']) == false)
+        {
+            header('Location: ' . getRedirectUrl());
+        }
+        else
+        {
+            header('Location: ' . $APP_URL);
+        }
                 /*$httpClient         = $accessToken->getHttpClient($consumer->getOauthOptions());
 
                 require_once('Zend/Gdata/EMail.php');
                 $emailService   = new Zend_Gdata_EMail($httpClient);
                 $emailService->getEMailFeed('https://www.googleapis.com/userinfo/email?alt=xml');*/
 
-        header('Location: ' . $APP_URL);
         break;
 
     case 'logout':

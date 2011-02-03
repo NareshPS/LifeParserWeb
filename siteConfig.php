@@ -18,6 +18,9 @@ $DB_NAME        = 'gamut';
 $DB_USER        = 'root';
 $DB_PASS        = '';
 $REDIRECT_PAGE  = 'login.php';
+$DATA_DIR       = '/home/naresh/LifeParser/Analysis/';
+$SENT_SUFFIX    = '.sent';
+$RECV_SUFFIX    = '.recv';
 
-$DEBUG_ENABLED  = true
+$DEBUG_ENABLED  = true;
 ?>

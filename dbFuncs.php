@@ -142,4 +142,25 @@ class dbFuncs
 
          return false;
     }
+
+    public function validateAccessToken($emailId, $fullToken)
+    {
+         if ($this->isConnected () == false)
+         {
+            if ($this->traceEnabled == true)
+            {
+                echo 'Not Connected';
+            }
+            return null;
+         }
+
+         $accessToken       = $this->getAccessToken($emailId);
+
+         if ($fullToken != null && $accessToken == $fullToken)
+         {
+            return true;
+         }
+
+         return false;
+    }
 }
