@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+  <ModulePrefs title="Gadget title" description="Gadget Desciption" author="Karthik" author_email="manikarthik84@gmail.com" category="tools" screenshot="http://screen-shot-image-url-here.jpg" thumbnail="http://thumb-nail-image-url-here.png" height="30″>
+  <Require feature="dynamic-height"/> 
+  <Require feature="views"/> 
+  <Optional feature="maximize"/>
+</ModulePrefs>
+	<Content type="html" view="home, profile">
+		<![CDATA[this is sidebar view. Code your content here.<center><a href="javascript:goToView('canvas')" >Launch Full View</a></center> ]]>
+	</Content>
+	<Content type="html" view="default,canvas">
+		<![CDATA[
+			this is full view.We can adjust the height as below.
+			<script type="text/javascript">
+				gadgets.window.adjustHeight();
+			</script>
+		]]>
+	</Content>
+</Module>

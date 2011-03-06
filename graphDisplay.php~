@@ -1,0 +1,243 @@
+<?php
+require_once 'siteConfig.php';
+require_once 'siteUtils.php';
+require_once 'dbFuncs.php';
+
+session_start();
+
+$dbFuncsObj     = new dbFuncs(false);
+$dbFuncsObj->doConnect();
+
+print $dbFuncsObj->validateAccessToken($_SESSION['ACCESS_TOKEN'], $_SESSION['OPENID_EMAIL']);
+
+if (!isset($_SESSION['ACCESS_TOKEN']) || !isset($_SESSION['OPENID_EMAIL']) || !$dbFuncsObj->validateAccessToken($_SESSION['OPENID_EMAIL'], $_SESSION['ACCESS_TOKEN'])) 
+{
+    header('Location: '.constructPageUrl('index.php'));
+}
+
+$dbFuncsObj->doDisconnect();
+?>
+<!DOCTYPE script PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <script language="javascript" type="text/javascript" src="flot/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="classifier.js"></script>
+</head>
+<body>
+<div style="float:left">
+    <div id="sentPh" style="width: 900; height: 500;"></div>
+</div>
+<div id="sentLegend" style="float:left;margin-left: 20px;margin-top:20px"></div>
+<p>
+<div style="float:left">
+    <div id="recvPh" style="width: 900; height: 500;"></div>
+</div>
+<div id="recvLegend" style="float:left;margin-left: 20px;margin-top:20px"></div>
+
+<?php
+global $DATA_DIR, $DATAFILE_MODE, $SENT_SUFFIX, $RECV_SUFFIX;
+
+$sentFileName           = $DATA_DIR.$_SESSION['OPENID_EMAIL'].$SENT_SUFFIX;
+$recvFileName           = $DATA_DIR.$_SESSION['OPENID_EMAIL'].$RECV_SUFFIX;
+
+function fetchDataFS($fileName)
+{
+    $hMails             = fopen($fileName, 'r');
+    
+    if ($hMails != FALSE)
+    {
+        $dataList		= array();
+       
+        while ($line = fgets($hMails))
+        {
+            $data		= preg_split('/[\r\n\t]/', $line);
+            $day		= trim($data[0]);
+            $time		= trim($data[1]);
+            $mailList           = trim($data[2]);
+
+            $dataList[]		= array($day, $time, $mailList);
+        }
+        fclose($hMails);
+
+        return $dataList;
+    }
+    else
+    {
+        die('Failed to open data file');
+    }
+    return null;
+}
+
+function makeEMailCols($fsData)
+{
+    $count			= count($fsData);
+    $eMailDict			= array();
+	
+    for ($index = 0; $index < $count; $index++)
+    {
+	if ($fsData[$index][2] != '')
+	{
+	    $eMailArray	        = preg_split('* *', $fsData[$index][2]);
+		
+            if ($eMailArray)
+	    {
+	        $addrCount      = count($eMailArray);
+				
+		for ($addrIdx = 0; $addrIdx < $addrCount; $addrIdx++)
+		{
+		    if (array_key_exists($eMailArray[$addrIdx], $eMailDict) == FALSE)
+		    {
+		        $eMailDict[$eMailArray[$addrIdx]]   = array();
+		    }
+					
+		    $eMailDict[$eMailArray[$addrIdx]][]	    = array($fsData[$index][0], $fsData[$index][1]);
+		}
+	    }
+	}
+	else 
+	{		
+	    $eMailDict['Empty'][]   = array($fsData[$index][0], $fsData[$index][1]);
+	}
+		
+	$eMailDict['All'][] = array($fsData[$index][0], $fsData[$index][1]);
+    }
+	
+    return $eMailDict;
+}
+
+function transformToJSStr($arrayData, $label, $color)
+{
+    $str        = '{label: "'.$label.'", data: [';
+	
+    for ($idx = 0; $idx < count($arrayData); $idx++)
+    {
+	$strTime            = $arrayData[$idx][1];
+	$str	            .= "['".$arrayData[$idx][0]."', '".$strTime."'],";
+    }	
+	
+    $str[strlen($str) - 1]  = ']';
+    $str		    .= ', color: '.$color.'}';
+    return $str;
+}
+
+function plotCustom($formattedData, $label, $numEntries)
+{
+    $allKeys		= array_keys($formattedData);
+    $maxKeys		= array();
+	
+    foreach ($allKeys as $key)
+    {
+	if ($key != 'All')
+	{
+    	    $maxKey	= count($formattedData[$key]);
+			
+	    if (array_key_exists($maxKey, $maxKeys) == FALSE)
+	    {
+		$maxKeys[$maxKey]   = array();
+	    }
+			
+	    $maxKeys[$maxKey][]	    = $key;
+	}
+    }
+	
+    krsort($maxKeys);
+    $count 	    = 0;
+    $color	    = 1;
+    $str	    = '[';
+	
+    $str	    .= transformToJSStr($formattedData['All'], $label, 5);
+    $str	    .= ',';
+	
+    foreach ($maxKeys as $key => $value)
+    {
+	$count	    += count($value);
+		
+	foreach ($value as $val)
+	{
+	    $str    .= transformToJSStr($formattedData[$val], $val.'['.$key.']', $color);
+	    $str    .= ',';
+	    $color++;
+			
+	    if ($color ==5)
+	    {
+		$color++;
+	    }
+	}
+		
+	if ($count >= $numEntries)
+	{
+	    break;
+	}
+    }
+	
+    $str[strlen($str) - 1] 	= ']';
+
+    return $str;
+}
+
+$sentFileData			= fetchDataFS($sentFileName);
+$recvFileData                   = fetchDataFS($recvFileName);
+
+//$formattedSentData		= makeEMailCols($sentFileData);
+//unset($sentFileData);
+?>
+<script id="source" type="text/javascript">
+//plotGraph(<?php //echo plotCustom($formattedSentData, "Sent Mails", 10);?>, "#sentPh", "#sentLegend");
+var sentMailDict    = toEMailKeys(<?php echo json_encode($sentFileData); ?>);
+
+plotGraph(eMailGraphData(sentMailDict, 'Sent Mails', 8), "#sentPh", "#sentLegend");
+
+var recvMailDict    = toEMailKeys(<?php echo json_encode($recvFileData); ?>);
+
+plotGraph(eMailGraphData(recvMailDict, 'Recv Mails', 8), "#recvPh", "#recvLegend");
+<?php 
+//unset($formattedSentData);
+//$formattedRecvData		= makeEMailCols($recvFileData);
+//unset($recvFileData);
+?>
+//plotGraph(<?php //echo plotCustom($formattedRecvData, "Recv Mails", 19);?>, "#recvPh", "#recvLegend");
+<?php
+//unset($formattedRecvData);
+?>
+function plotGraph(dataList, placeholder, containerDiv)
+{
+    for (var dictIdx = 0; dictIdx < dataList.length; dictIdx++)
+    {
+	dataItem        = dataList[dictIdx]['data'];
+		
+	for (var index = 0; index < dataItem.length; index++)
+	{
+	    var timeArray		= dataItem[index][1].split(':');
+	    var hour			= parseInt(timeArray[0]);
+	    var min				= parseInt(timeArray[1]);
+			
+	    dataItem[index][0]		= new Date(dataItem[index][0]);
+	    dataItem[index][1]		= (hour + min/60);
+	}
+    }
+	
+    $.plot($(placeholder), dataList
+			, {
+                            legend: {show: true, container: $(containerDiv)},
+                            xaxis: {
+                                    mode: "time",
+                                    timeformat: "%b %y",
+                                    min: (new Date("01/01/2005")).getTime(),
+                                    max: (new Date("02/01/2011")).getTime(),
+                                    minTickSize: [1, "month"],
+				    monthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                                    },
+                            yaxis: {
+                                    min: 0,
+                                    max: 24,
+                                    tickSize: 2,
+                                    minTickSize: 1
+                                   },                                                                      points: { show: true },
+                            grid: { backgroundColor: "#fffaff" }
+                            });
+}
+</script>
+<a href="<?php echo getRedirectUrl(); ?>">Click here to Logout</a>
+</body>
+</html>

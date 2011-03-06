@@ -99,19 +99,18 @@ switch (@$_REQUEST['action'])
         
         if (!isset($_SESSION['ACCESS_TOKEN'])) 
         {
-            renderHTML('login');
+            renderHTML('Click here to sign-in', true);
         }
         else
         {
-            //renderHTML('User: ' . $_SESSION['OPENID_FIRSTNAME'] . ' ' . $_SESSION['OPENID_LASTNAME'] . '<br/> EMail: <b>' . $_SESSION['OPENID_EMAIL'] . '</b> logged-in with access token: <br> <a href="'. getRedirectUrl().'" >Logout </a>' , false);
-            renderHTML('flashDisplay');
+            renderHTML('User: ' . $_SESSION['OPENID_FIRSTNAME'] . ' ' . $_SESSION['OPENID_LASTNAME'] . '<br/> EMail: <b>' . $_SESSION['OPENID_EMAIL'] . '</b> logged-in with access token: <br> <a href="'. getRedirectUrl().'" >Logout </a>' , false);
         }
         break;
 }
 
 $dbFuncsObj->doDisconnect();
 
-function renderHTML ($command)
+function renderHTML ($displayMessage, $isLink)
 {
 ?>
 <html lang="en">
@@ -123,44 +122,39 @@ function renderHTML ($command)
 </head>
 
 <body>
-    <table align="center" border="0" height="100%" width="80%"
+    <table align="center" border="0" height="80%" width="80%"
 	bgcolor="#FFFFFF">
+	<tbody>
             <tr><td class="siteTitle">Life Parser</td></tr>
+	    <tr rowspan="2"><td colspan="2"></td></tr>
 	    <tr>
-                <?php
-                    switch ($command)
-                    {
-                        case 'login':
-                        {
-                ?>
-	        <td>Gmail account is required to use this site.<br></td>
-	        <td>
-                    <a href="<?php global $openId; $redirUrl   = constructPageUrl() . '?action=' . getActionString('openid_auth');echo $openId->getUrl($redirUrl); ?>">Sign-in with Google Account</a>
-		</td>
-                <?php
-                            break;
-                        }
-
-                        case 'flashDisplay':
-                        {
-                ?>
-                <td>
-                        <object width="100%" height="100%">
-                            <param name="movie" value="LifeParserWeb.swf"/>
-                            <embed src="LifeParserWeb.swf" width="100%" height="100%"/>
-                        </object>
+		<td>
+		    <table width=100% height=100% align="center" border="0">
+		        <tbody>
+			    <tr height=100%>
+			        <td width=50%>Gmail account is required to use this site.<br>
+				</td>
+				<td width=50%>
+                            <?php
+                                if ($isLink == true)
+                                {
+                            ?>
+                                <a href="<?php global $openId; $redirUrl   = constructPageUrl() . '?action=' . getActionString('openid_auth');
+                                echo $openId->getUrl($redirUrl); ?>"><?php echo $displayMessage; ?></a>
+                            <?php
+                                }
+                                else
+                                {
+                                    echo $displayMessage;
+                                }
+                            ?>
+			        </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </td>
             </tr>
-            <tr>
-                <td>
-                    <a href="<?php echo constructPageUrl().'?action='.getActionString('logout'); ?>">Click Here to Logout.</a>
-                </td>
-            </tr>
-                <?php
-                            break;
-                        }
-                    }
-                ?>
+        <tbody>
     </table>
 </body>
 </html>

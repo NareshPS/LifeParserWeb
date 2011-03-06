@@ -1,0 +1,27 @@
+<Module>
+    <ModulePrefs title="Life Parser" title_url="http://quine.algorithm.cs.sunysb.edu" directory_title="Life Parser" author="Naresh P. Singh" author_email="mail2naresh@gmail.com" author_affiliation="Algorithms Lab, SUNY Stony Brook" author_location="Stony Brook, NY" author_link="http://www.cs.sunysb.edu/~npsingh" description="This gadget performs analysis on user's emails and predicts his/her behavior." height="800">
+        <Require feature="dynamic-height" />
+        <Require feature="views" />
+        <Optional feature="maximize" />
+    </ModulePrefs>
+    <Content type="html" view="home">
+        <![CDATA[
+            <script type="text/javascript" >
+                function goToView(dest){
+
+                    var supported_views = gadgets.views.getSupportedViews();
+                    gadgets.views.requestNavigateTo(supported_views[dest]);
+                }
+            gadgets.window.adjustHeight(100);
+            </script>
+            <a href=javascript:goToView("canvas")> <small>Sign into Life Parser</small></a>
+        ]]>
+    </Content>
+    <Content type="url" href="http://quine.algorithm.cs.sunysb.edu/naresh/index.php?action=gadget_login" view="canvas">
+        <![CDATA[
+            <script type="text/javascript">
+                gadgets.window.adjustHeight();
+            </script>
+        ]]>
+    </Content>
+</Module>

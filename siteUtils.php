@@ -1,4 +1,5 @@
 <?php
+require_once 'siteConfig.php';
 /**
  * Converts an array to GET request while encoding them.
  **/
@@ -53,6 +54,9 @@ function getActionString($actionFlag)
 
         case 'openid_auth':
             $actionString       = 'openid_auth';
+            break;
+        case 'login':
+            $actionString       = 'login';
             break;
     }
 
@@ -110,7 +114,8 @@ function getBaseUrl ()
  * @return string
  */
 function getAppURL() {
-    return getBaseUrl() . $_SERVER['PHP_SELF'];
+    global $INDEX_PAGE;
+    return getBaseUrl() . $INDEX_PAGE;
 }
 
 /**
@@ -119,17 +124,25 @@ function getAppURL() {
  * @return string
  **/
 
-function getRedirectUrl()
+function getRedirectUrl($action = null)
 {
-    global $APP_URL;
-    $redirUrl = $APP_URL;
-    
-    if (!isset($_SESSION[ 'ACCESS_TOKEN' ])) {
-        $redirUrl = $redirUrl.'?action='.getActionString('access');
+    $redirUrl   = getAppURL();
+
+    $actionStr  = getActionString($action);
+
+    if($actionStr)
+    {
+        $redirUrl = $redirUrl.'?action='.getActionString($action);
     }
     else
     {
-        $redirUrl = $redirUrl.'?action='.getActionString('logout');
+        if (!isset($_SESSION[ 'ACCESS_TOKEN' ])) {
+            $redirUrl = $redirUrl.'?action='.getActionString('access');
+        }
+        else
+        {
+            $redirUrl = $redirUrl.'?action='.getActionString('logout');
+        }
     }
     return $redirUrl;
 }

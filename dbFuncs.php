@@ -70,7 +70,7 @@ class dbFuncs
 
             $email              = null;
             $fullToken          = null;
-
+            
             foreach ($rows as $row)
             {
                 $fullToken      = $row['fullToken'];
@@ -78,7 +78,7 @@ class dbFuncs
 
             if ($this->traceEnabled == true)
             {
-                //echo 'Access Token: ' . $accessToken;
+                //echo 'Access Token: ' . $fullToken;
             }
 
             return $fullToken;
@@ -153,7 +153,7 @@ class dbFuncs
             }
             return null;
          }
-
+         
          $accessToken       = $this->getAccessToken($emailId);
 
          if ($fullToken != null && $accessToken == $fullToken)
