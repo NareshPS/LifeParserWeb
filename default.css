@@ -1,7 +1,28 @@
+html {
+    height: 100%;
+}
+
 body {
-  font-family: Verdana, Arial, sans-serif;
-  font-size: 12px;
-  background-color: #FFFFFF
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    text-align: center;
+    background-color: #FFFFFF
+}
+
+td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+object: focus {
+    outline: none;
+}
+
+#flashContent {
+    display: none;
 }
 
 .siteTitle {

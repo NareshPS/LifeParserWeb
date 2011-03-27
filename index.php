@@ -70,7 +70,7 @@ switch (@$_REQUEST['action'])
             $command                    = 'rm -rf /home/naresh/LifeParser/Analysis/mail2naresh@gmail.com*';
             $command                    = 'rm -rf /home/naresh/LifeParser/Data/GMail_DataStore/mail2naresh@gmail.com';
             exec($command, $output, $retVal);*/
-            header('Location: ' . constructPageUrl('graphDisplay.php'));
+            header('Location: ' . constructPageUrl('index.php'));
         }
         break;
 
@@ -119,24 +119,25 @@ function renderHTML ($command)
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link href="default.css" rel="stylesheet" type="text/css">
 <title>Life Parser</title>
-
 </head>
 
 <body>
-    <table align="center" border="0" height="100%" width="80%"
-	bgcolor="#FFFFFF">
-            <tr><td class="siteTitle">Life Parser</td></tr>
-	    <tr>
+    <table align="center" id="lifeParserMain"  border="0" width="80%">
+            <tr>
+                <td class="siteTitle" colspan="2">Life Parser</td>
+            </tr>
                 <?php
                     switch ($command)
                     {
                         case 'login':
                         {
                 ?>
+	    <tr valign="top">
 	        <td>Gmail account is required to use this site.<br></td>
 	        <td>
                     <a href="<?php global $openId; $redirUrl   = constructPageUrl() . '?action=' . getActionString('openid_auth');echo $openId->getUrl($redirUrl); ?>">Sign-in with Google Account</a>
 		</td>
+            </tr>
                 <?php
                             break;
                         }
@@ -144,16 +145,66 @@ function renderHTML ($command)
                         case 'flashDisplay':
                         {
                 ?>
+            <tr>
                 <td>
-                        <object width="100%" height="100%">
-                            <param name="movie" value="LifeParserWeb.swf"/>
-                            <embed src="LifeParserWeb.swf" width="100%" height="100%"/>
-                        </object>
+                    Welcome <?php echo $_SESSION['OPENID_FIRSTNAME'] . ' ' . $_SESSION['OPENID_LASTNAME']; ?>
+                </td>
+                <td>
+                    <a href="<?php echo constructPageUrl().'?action='.getActionString('logout'); ?>">Click Here to Logout.</a>
                 </td>
             </tr>
             <tr>
-                <td>
-                    <a href="<?php echo constructPageUrl().'?action='.getActionString('logout'); ?>">Click Here to Logout.</a>
+                <td colspan="2">
+                    <link rel="stylesheet" type="text/css" href="history/history.css" />
+                    <script type="text/javascript" src="history/history.js"></script>
+                    <script type="text/javascript" src="swfobject.js"></script>
+                    <script type="text/javascript">
+
+                        <!-- Taken from automatically generated FLEX HTML file -->
+
+                        <!-- For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. --> 
+
+                        var swfVersionStr = "10.0.0";
+                        <!-- To use express install, set to playerProductInstall.swf, otherwise the empty string. -->
+                                                
+                        var xiSwfUrlStr = "playerProductInstall.swf";
+                        var flashvars = {};
+                        var params = {};
+
+                        <!-- Fill Params Here [Starts]-->
+                        params.quality = "high";
+                        params.bgcolor = "#ffffff";
+                        params.allowscriptaccess = "sameDomain";
+                        params.allowfullscreen = "true";
+
+                        <!-- Fill Params Here [Ends]-->
+
+                        var attributes = {};
+                        <!-- Fill Params Here [Starts]-->
+
+                        attributes.id = "LifeParserWeb";
+                        attributes.name = "LifeParserWeb";
+                        attributes.align = "middle";
+
+                        <!-- Fill Params Here [Ends]-->
+                        swfobject.embedSWF(
+                            "LifeParserWeb.swf", "flashContent", 
+                            "800", "600", 
+                            swfVersionStr, xiSwfUrlStr, 
+                            flashvars, params, attributes);
+
+                        <!-- JavaScript enabled so display the flashContent div in case it is not replaced with a swf object. -->
+
+                        swfobject.createCSS("#flashContent", "display:block;text-align:left;");
+                    </script>
+                    <div id="flashContent">
+                        <p>To view this page ensure that Adobe Flash Player version 10.0.0 or greater is installed. 
+                        </p>
+                        <script type="text/javascript"> 
+                            var pageHost = ((document.location.protocol == "https:") ? "https://" :	"http://"); 
+                            document.write("<a href='http://www.adobe.com/go/getflashplayer'><img src='"+ pageHost + "www.adobe.com/images/shared/download_buttons/get_flash_player.gif' alt='Get Adobe Flash player' /></a>" ); 
+                        </script>
+                    </div>
                 </td>
             </tr>
                 <?php

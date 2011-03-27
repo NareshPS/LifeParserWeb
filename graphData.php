@@ -3,7 +3,8 @@ require_once 'siteConfig.php';
 require_once 'siteUtils.php';
 require_once 'dbFuncs.php';
 
-session_start();
+global $DATA_DIR, $DATAFILE_MODE, $SENT_SUFFIX, $RECV_SUFFIX;
+/*session_start();
 
 $dbFuncsObj     = new dbFuncs(false);
 $dbFuncsObj->doConnect();
@@ -18,9 +19,12 @@ if (!isset($_SESSION['ACCESS_TOKEN']) || !isset($_SESSION['OPENID_EMAIL']) || !$
 $dbFuncsObj->doDisconnect();
 
 global $DATA_DIR, $DATAFILE_MODE, $SENT_SUFFIX, $RECV_SUFFIX;
-
 $sentFileName           = $DATA_DIR.$_SESSION['OPENID_EMAIL'].$SENT_SUFFIX;
 $recvFileName           = $DATA_DIR.$_SESSION['OPENID_EMAIL'].$RECV_SUFFIX;
+*/
+
+$sentFileName           = $DATA_DIR.'mail2naresh@gmail.com'.$SENT_SUFFIX;
+$recvFileName           = $DATA_DIR.'mail2naresh@gmail.com'.$RECV_SUFFIX;
 
 function fetchDataFS($fileName)
 {
@@ -36,13 +40,17 @@ function fetchDataFS($fileName)
 
             if (count($data) >= 5)
             {
-                $day		= trim($data [0]);
-                $time		= trim($data [1]);
-                $mailList           = trim($data [2]);
-                $positiveSentiment  = (int)$data [3];
-                $negativeSentiment  = (int)$data [4];
+                $day		        = trim($data [0]);
+                $time		        = trim($data [1]);
+                $subject            = trim($data [2]); 
+                $mailList           = trim($data [3]);
+                $positiveSentiment  = (int)$data [4];
+                $positiveWords      = trim($data [5]); 
+                $negativeSentiment  = (int)$data [6];
+                $negativeWords      = trim($data [7]); 
+                $totalWords         = (int)$data [8];
 
-                $dataList[]	= array("date" => $day, "time" => $time, "info" => $mailList, "positiveSentiment" => $positiveSentiment, "negativeSentiment" => $negativeSentiment);
+                $dataList[]	= array("date" => $day, "time" => $time, "subject" => $subject,"info" => $mailList, "positiveSentiment" => $positiveSentiment, "positiveWords" => $positiveWords, "negativeSentiment" => $negativeSentiment, "negativeWords" => $negativeWords, "totalWords" => $totalWords);
             }
         }
         fclose($hMails);
